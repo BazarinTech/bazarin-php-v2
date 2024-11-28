@@ -412,6 +412,165 @@ echo $decryptedData;  // Decrypted message
 The `Crypt` class provides an easy and secure way to encrypt and decrypt data using AES-256-CBC. The class ensures confidentiality by encrypting data with a secure algorithm and managing the initialization vector. To decrypt the data, the same key used for encryption is required.
 
 ---
+Here is the documentation for the `FileHelper` class:
+
+---
+
+# **FileHelper Class Documentation**
+
+The `FileHelper` class provides utility functions for handling file uploads in PHP. It allows for uploading files to a specified destination with optional validation for file type and file size.
+
+## **Methods**
+
+### `upload($file, $destination, $allowedTypes = [], $maxSize = 0)`
+
+This method is used to upload a file to the server. It optionally validates the file's type and size before moving it to the specified destination.
+
+#### **Parameters:**
+
+- **`$file`** (array) – The file to be uploaded, typically from the `$_FILES` superglobal array (e.g., `$_FILES['file']`).
+  
+- **`$destination`** (string) – The target location on the server where the file will be uploaded (e.g., `'uploads/filename.ext'`).
+  
+- **`$allowedTypes`** (array, optional) – An array of allowed MIME types for the file. This is an optional parameter. If provided, the function will check that the file type matches one of the allowed MIME types. Example: `['image/jpeg', 'image/png']`.
+  
+- **`$maxSize`** (int, optional) – The maximum file size allowed in bytes. If set to a value greater than 0, the file size will be checked before upload. Example: `2000000` (2MB).
+
+#### **Return Value:**
+
+- **`string`** – Returns the destination path of the uploaded file on success (e.g., `'uploads/filename.ext'`).
+- **Throws Exception** – If the file fails the type or size validation, or if the upload fails, an exception is thrown with a relevant error message.
+
+#### **Exceptions:**
+
+The method may throw the following exceptions:
+- **File upload error**: If the file upload fails due to an internal error (e.g., `$_FILES['file']['error']`).
+- **Invalid file type**: If the uploaded file's MIME type does not match the allowed types.
+- **File too large**: If the uploaded file exceeds the maximum allowed size.
+
+---
+
+## **Example Usage:**
+
+```php
+try {
+    // File to be uploaded
+    $file = $_FILES['file'];
+
+    // Destination path
+    $destination = 'uploads/' . basename($file['name']);
+
+    // Optional validation for file type and size
+    $allowedTypes = ['image/jpeg', 'image/png'];
+    $maxSize = 2000000; // 2MB
+
+    // Attempt to upload the file
+    $uploadedFile = FileHelper::upload($file, $destination, $allowedTypes, $maxSize);
+    echo "File uploaded successfully: $uploadedFile";
+} catch (\Exception $e) {
+    // Handle any errors that occur during the upload
+    echo "Error: " . $e->getMessage();
+}
+```
+
+In this example:
+- The file is uploaded with type and size validation.
+- If the file is of the wrong type or too large, an exception is thrown with an error message.
+- On successful upload, the file path is returned.
+
+---
+
+## **Usage Notes:**
+
+- If no validation is required, both `$allowedTypes` and `$maxSize` can be left empty or set to default values (empty array and 0, respectively).
+  
+- The MIME type of the uploaded file is determined using PHP's `mime_content_type()` function.
+
+- The file is moved using PHP's `move_uploaded_file()` function, and the destination is returned on success.
+
+- Exception handling should be implemented to catch errors related to file upload failures, invalid file types, or exceeding the file size limit.
+
+---
+
+### **Common Errors:**
+
+- **File upload failed:** This could be due to an invalid file, server misconfiguration, or permission issues.
+- **Invalid file type:** The uploaded file type does not match any of the allowed MIME types.
+- **File too large:** The uploaded file exceeds the maximum allowed size.
+
+---
+Here is the documentation for the `DateHelper` class:
+
+---
+
+# **DateHelper Class Documentation**
+
+The `DateHelper` class provides utility functions for working with dates in PHP. It includes a method to format a date according to a specified format.
+
+## **Methods**
+
+### `format($date, $format = 'Y-m-d')`
+
+This method is used to format a given date into a specific format.
+
+#### **Parameters:**
+
+- **`$date`** (string|DateTime) – The date to be formatted. This can either be a string representing a date (e.g., `'2024-11-29'`) or a `DateTime` object.
+  
+- **`$format`** (string, optional) – The format in which the date should be returned. This is optional and defaults to `'Y-m-d'` (e.g., `2024-11-29`). You can use any format supported by PHP's `DateTime::format` method. For example, `'d/m/Y'` for `29/11/2024`, or `'l, F j, Y'` for `'Friday, November 29, 2024'`.
+
+#### **Return Value:**
+
+- **`string`** – Returns the formatted date as a string.
+
+#### **Exceptions:**
+
+- **InvalidArgumentException** – If the provided `$date` cannot be parsed into a valid date, an exception will be thrown.
+
+---
+
+## **Example Usage:**
+
+```php
+try {
+    // Format a date string to the default format (Y-m-d)
+    $formattedDate = DateHelper::format('2024-11-29');
+    echo $formattedDate; // Output: 2024-11-29
+
+    // Format a date string with a custom format (d/m/Y)
+    $formattedDate = DateHelper::format('2024-11-29', 'd/m/Y');
+    echo $formattedDate; // Output: 29/11/2024
+
+    // Format a DateTime object with a custom format (l, F j, Y)
+    $date = new \DateTime('2024-11-29');
+    $formattedDate = DateHelper::format($date, 'l, F j, Y');
+    echo $formattedDate; // Output: Friday, November 29, 2024
+} catch (\Exception $e) {
+    // Handle any errors that occur during the date formatting
+    echo "Error: " . $e->getMessage();
+}
+```
+
+In this example:
+- A date string is formatted using the default format (`Y-m-d`).
+- A custom format (`d/m/Y`) is used to format the date.
+- A `DateTime` object is passed to the `format` method and is formatted as well.
+
+---
+
+## **Usage Notes:**
+
+- The `$date` parameter can be a string (e.g., `'2024-11-29'`) or an instance of `DateTime`. If a string is passed, it will be converted into a `DateTime` object internally.
+  
+- The `$format` parameter is optional. If not provided, the default format (`'Y-m-d'`) will be used. The format string can follow PHP’s `DateTime::format` syntax.
+
+- If the provided `$date` string is not a valid date, the method will throw an exception.
+
+---
+
+### **Common Errors:**
+
+- **Invalid date format**: If the provided date string is invalid, it will cause a parsing error when creating a `DateTime` object.
 
 ## Requirements
 - PHP 7.4 or higher.
