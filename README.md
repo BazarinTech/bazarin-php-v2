@@ -3,14 +3,18 @@
 ---
 
 # **Bazarin PHP Library**  
-**A lightweight and secure PHP query builder using MySQLi.**
+**A lightweight and secure PHP library.**
 
 ---
 
 ## **Features**  
 - Simplifies database operations with a clean API.  
 - Prevents SQL injection using prepared statements.  
-- Supports common CRUD operations: `select`, `insert`, `update`, `delete`.  
+- Supports common CRUD operations: `select`, `insert`, `update`, `delete`.
+-  Dates and time management according to regions.
+-  Encryption and decryptions.
+-  File management and uploads.
+-  APIS simplifications.   
 
 ---
 
