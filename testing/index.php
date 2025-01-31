@@ -4,7 +4,7 @@ include '../Database/QueryBuilder.php';
 $conn = new Connection('localhost', 'bazarin', 'bazarin', 'icoinn');
 $conn = $conn->connect();
 $query = new QueryBuilder($conn);
-$user = $query->select('users', 'name', ['id' => 2]);
+$user = $query->select('users', 'name', ['id' => 5]);
 $user_name = $user[0]['name'] ?? 'No user found';
 
 ?>
