@@ -1,7 +1,7 @@
 <?php 
 class FileHelper {
     // Upload a file with optional type and size validation
-    public static function upload($file, $destination, $allowedTypes = [], $maxSize = 0) {
+    public static function upload($file, $destination, $allowedTypes = [], $maxSize = 50) {
         // Check if the file was uploaded
         if ($file['error'] !== UPLOAD_ERR_OK) {
             throw new \Exception('File upload failed with error code: ' . $file['error']);
