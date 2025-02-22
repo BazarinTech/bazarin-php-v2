@@ -1,139 +1,113 @@
-<?php 
+<?php
+
 class QueryBuilder {
-    public function __construct($db) {
-        $this->conn = $db;
+    private $conn;
+
+    public function __construct($conn) {
+        $this->conn = $conn;
     }
 
+    // SELECT Method
     public function select($table, $columns = '*', $conditions = [], $orderBy = null, $limit = null) {
-        $sql = "SELECT $columns FROM $table";
-
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($conditions)));
-        }
-
-        if ($orderBy) {
-            $sql .= " ORDER BY " . $orderBy['column'] . " " . strtoupper($orderBy['direction']);
-
-            if ($limit) {
-                $sql .= " LIMIT ".$limit['value'];
-            }
-        }
-
-        $stmt = $this->conn->prepare($sql);
-        if (!empty($conditions)) {
-            $stmt->bind_param(str_repeat('s', count($conditions)), ...array_values($conditions));
-        }
-
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function selectOR($table, $columns = '*', $conditions = [], $orderBy = null) {
-        $sql = "SELECT $columns FROM $table";
-
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(' OR ', array_map(fn($col) => "$col = ?", array_keys($conditions)));
-        }
-
-        if ($orderBy) {
-            $sql .= " ORDER BY " . $orderBy['column'] . " " . strtoupper($orderBy['direction']);
-        }
-
-        $stmt = $this->conn->prepare($sql);
-        if (!empty($conditions)) {
-            $stmt->bind_param(str_repeat('s', count($conditions)), ...array_values($conditions));
-        }
-
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function insert($table, $data) {
-        $columns = implode(',', array_keys($data));
-        $placeholders = implode(',', array_fill(0, count($data), '?'));
-        $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param(str_repeat('s', count($data)), ...array_values($data));
-        $stmt->execute();
-
-        return $stmt->insert_id;
-    }
-
-    public function update($table, $data, $conditions) {
-        $setClause = implode(', ', array_map(fn($col) => "$col = ?", array_keys($data)));
-        $whereClause = implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($conditions)));
-
-        $sql = "UPDATE $table SET $setClause WHERE $whereClause";
-        $stmt = $this->conn->prepare($sql);
-
-        $params = array_merge(array_values($data), array_values($conditions));
-        $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-
-        $stmt->execute();
-
-        return $stmt->affected_rows; // Returns the number of affected rows
-    }
-
-    public function delete($table, $conditions) {
-        $whereClause = implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($conditions)));
-
-        $sql = "DELETE FROM $table WHERE $whereClause";
-        $stmt = $this->conn->prepare($sql);
-
-        $stmt->bind_param(str_repeat('s', count($conditions)), ...array_values($conditions));
-
-        $stmt->execute();
-
-        return $stmt->affected_rows; // Returns the number of affected rows
-    }
-    public function auth($table, $uname, $password){
-        $select = $this->select($table, '*', ['username' => $uname, 'passwrd' => $password]);
-        $num = count($select);
-        if ($num > 0) {
-            return ['Status' => 'Success', 'Data' => $select, 'Message' => 'Authentication Successfull'];
-        }else{
-            return ['Status' => 'Failed', 'Data' => '', 'Message' => 'Invalid Credintials'];
-        }
-    }
-    public function randomly($table, $columns = '*', $conditions = [], $limit = null) {
-        // Start with the basic SQL query
-        $sql = "SELECT $columns FROM $table";
-    
-        // Add conditions to the query if they are provided
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($conditions)));
-        }
-    
-        // Add random order to the query
-        $sql .= " ORDER BY RAND()";
-    
-        // Apply limit if provided
-        if ($limit) {
-            $sql .= " LIMIT " . $limit['value'];
-        }
-    
-        // Prepare the SQL statement
-        $stmt = $this->conn->prepare($sql);
-    
-        // Bind parameters if there are conditions
-        if (!empty($conditions)) {
-            $stmt->bind_param(str_repeat('s', count($conditions)), ...array_values($conditions));
-        }
-    
-        // Execute the statement
-        $stmt->execute();
-    
-        // Get the result
-        $result = $stmt->get_result();
+        $sql = "SELECT " . (is_array($columns) ? implode(", ", $columns) : $columns) . " FROM $table";
+        $params = [];
         
-        // Return the fetched data as an associative array
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($conditions)) {
+            $conditionStrings = [];
+            foreach ($conditions as $col => $val) {
+                if (preg_match('/\s*(<|>|<=|>=|!=|=)\s*$/', $col, $matches)) {
+                    $operator = $matches[1];
+                    $col = preg_replace('/\s*(<|>|<=|>=|!=|=)\s*$/', '', $col);
+                } else {
+                    $operator = '=';
+                }
+                $conditionStrings[] = "$col $operator ?";
+                $params[] = $val;
+            }
+            $sql .= " WHERE " . implode(" AND ", $conditionStrings);
+        }
+
+        if ($orderBy) {
+            $sql .= " ORDER BY " . $orderBy['column'] . " " . strtoupper($orderBy['direction']);
+        }
+
+        if ($limit) {
+            $sql .= " LIMIT " . intval($limit);
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        if ($params) {
+            $types = '';
+            foreach ($params as $param) {
+                $types .= is_int($param) ? 'i' : (is_float($param) ? 'd' : 's');
+            }
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
-    
+
+    // SELECT using OR conditions
+    public function selectOR($table, $columns = '*', $conditions = [], $orderBy = null, $limit = null) {
+        $sql = "SELECT " . (is_array($columns) ? implode(", ", $columns) : $columns) . " FROM $table";
+        $params = [];
+        
+        if (!empty($conditions)) {
+            $conditionStrings = [];
+            foreach ($conditions as $col => $val) {
+                $conditionStrings[] = "$col = ?";
+                $params[] = $val;
+            }
+            $sql .= " WHERE " . implode(" OR ", $conditionStrings);
+        }
+        
+        if ($orderBy) {
+            $sql .= " ORDER BY " . $orderBy['column'] . " " . strtoupper($orderBy['direction']);
+        }
+        
+        if ($limit) {
+            $sql .= " LIMIT " . intval($limit);
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        if ($params) {
+            $types = str_repeat('s', count($params));
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // AUTHENTICATION
+    public function auth($table, $uname, $password) {
+        $user = $this->select($table, '*', ['username' => $uname]);
+        
+        if (!empty($user) && password_verify($password, $user[0]['password'])) {
+            return ['Status' => 'Success', 'Data' => $user, 'Message' => 'Authentication Successful'];
+        }
+        return ['Status' => 'Failed', 'Data' => '', 'Message' => 'Invalid Credentials'];
+    }
+
+    // DELETE Method
+    public function delete($table, $conditions) {
+        $sql = "DELETE FROM $table";
+        $params = [];
+        
+        if (!empty($conditions)) {
+            $conditionStrings = [];
+            foreach ($conditions as $col => $val) {
+                $conditionStrings[] = "$col = ?";
+                $params[] = $val;
+            }
+            $sql .= " WHERE " . implode(" AND ", $conditionStrings);
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        if ($params) {
+            $types = str_repeat('s', count($params));
+            $stmt->bind_param($types, ...$params);
+        }
+        return $stmt->execute();
+    }
 }
 
