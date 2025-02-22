@@ -30,9 +30,9 @@ use Bazarin\Security\Cryptions;
  */
 $db = new Connection([
     'host' => 'localhost',
-    'user' => 'root',
-    'password' => '',
-    'database' => 'db_name'
+    'user' => 'bazarin',
+    'password' => 'bazarin',
+    'database' => 'xgramm'
 ]);
 
 // Initialize the Query Builder
@@ -57,8 +57,6 @@ $fileHelper = new FileHelper();
  * Provides functions to work with dates.
  */
 $dateHelper = new DateHelper();
-echo "Current DateTime: " . DateHelper::now() . PHP_EOL;
-echo "Formatted Date: " . DateHelper::formatDate("2024-02-22") . PHP_EOL;
 
 /**
  * ===========================
@@ -76,7 +74,7 @@ var_dump($response);
  * ===========================
  * Used to retrieve file contents over HTTP.
  */
-$fileGetContent = new FileGetContent();
+$fileGetContent = new FileGetContent('*');
 
 /**
  * ===========================
@@ -84,6 +82,6 @@ $fileGetContent = new FileGetContent();
  * ===========================
  * Used for cryptographic operations like encryption and decryption.
  */
-$cryptions = new Cryptions();
+$cryptions = new Cryptions('key');
 
 
