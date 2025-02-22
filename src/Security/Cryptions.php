@@ -1,5 +1,8 @@
 <?php
-class Crypt {
+
+namespace Bazarin\Security;
+
+class Cryptions {
     // Encryption key and method
     private $key;
     private $method = 'AES-256-CBC';

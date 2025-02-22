@@ -1,5 +1,9 @@
 <?php
-class RestClient {
+
+namespace Bazarin\APIS;
+
+
+class Curl {
     private $defaultHeaders = [];
     private $debug = false;
 

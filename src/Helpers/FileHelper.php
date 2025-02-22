@@ -1,4 +1,7 @@
 <?php 
+
+namespace Bazarin\Helpers;
+
 class FileHelper {
     // Upload a file with optional type and size validation
     public static function upload($file, $destination, $allowedTypes = [], $maxSize = 50) {

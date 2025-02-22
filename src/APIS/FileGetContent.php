@@ -1,4 +1,8 @@
 <?php
+
+namespace Bazarin\APIS;
+
+
 class FileGetContent {
     public function __construct($origin){
         $this->origin = $origin;
