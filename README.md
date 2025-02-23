@@ -165,4 +165,3 @@ $decrypted = $cryptions->decrypt($encrypted);
 echo "Encrypted: $encrypted\n";
 echo "Decrypted: $decrypted\n";
 ```
-
