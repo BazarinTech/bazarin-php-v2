@@ -36,10 +36,60 @@ $db = new Connection([
 
 // Initialize Query Builder
 $query = new QueryBuilder($db->getConnection());
+```
 
-// Example Query: Fetch a user where username = 'xgramm'
+#### 🔹 Select Query
+Fetch a user where `username = 'xgramm'`:
+
+```php
 $users = $query->select("users", '*', ['username' => 'xgramm']);
 print_r($users);
+```
+
+#### 🔹 Insert Query
+Adding a new user:
+
+```php
+$data = [
+    'username' => 'john_doe',
+    'email' => 'john@example.com',
+    'password' => password_hash('securepass', PASSWORD_BCRYPT)
+];
+
+$userId = $query->insert('users', $data);
+if ($userId) {
+    echo "User added successfully with ID: $userId";
+}
+```
+
+#### 🔹 Update Query
+Updating a user's email:
+
+```php
+$updateData = ['email' => 'newemail@example.com'];
+$updated = $query->update('users', $updateData, ['username' => 'john_doe']);
+
+if ($updated) {
+    echo "User email updated successfully";
+}
+```
+
+#### 🔹 Delete Query
+Deleting a user:
+
+```php
+$deleted = $query->delete('users', ['username' => 'john_doe']);
+if ($deleted) {
+    echo "User deleted successfully";
+}
+```
+
+#### 🔹 Authentication
+User authentication using hashed passwords:
+
+```php
+$authResult = $query->auth('users', 'john_doe', 'securepass');
+print_r($authResult);
 ```
 
 ---
@@ -62,7 +112,6 @@ if ($fileHelper->exists($filePath)) {
 ---
 
 ### 3️⃣ Date Helper - Working with Dates
-
 The **DateHelper** class provides various date-related functions:
 
 ```php
@@ -77,7 +126,6 @@ echo $dateHelper->now();
 ---
 
 ### 4️⃣ API Requests with cURL
-
 The **Curl** class simplifies HTTP requests.
 
 ```php
@@ -117,7 +165,4 @@ $decrypted = $cryptions->decrypt($encrypted);
 echo "Encrypted: $encrypted\n";
 echo "Decrypted: $decrypted\n";
 ```
-
----
-
 
