@@ -6,7 +6,7 @@ Bazarin PHP Library is a lightweight and efficient PHP library for database oper
 To install the library using **Composer**, run:
 
 ```sh
-composer require bazarin/php-library
+composer require bazarin/bazarin-php-library
 ```
 
 After installation, include the **autoload** file in your PHP project:
