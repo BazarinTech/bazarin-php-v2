@@ -98,13 +98,24 @@ class QueryBuilder {
     }
 
     public function auth($table, $uname, $password) {
-        $user = $this->select($table, '*', ['username' => $uname]);
+        $user = $this->select($table, '*', ['email' => $uname]);
+        $user_count = count($user);
 
-        if ($user && password_verify($password, $user[0]['password'])) {
-            return ['Status' => 'Success', 'Data' => $user, 'Message' => 'Authentication Successful'];
-        } else {
+        if ($user_count > 0) {
+            if($user[0]['status'] == 'Verified'){
+                if ($user[0]['passwrd'] == $password) {
+                    return ['Status' => 'Success', 'Data' => $user[0], 'Message' => 'Authentication Successful'];
+                } else {
+                    return ['Status' => 'Failed', 'Message' => 'Invalid Credentials'];
+                }
+            }else{
+                return ['Status' => 'Failed', 'Message' => 'Please Verify your email to continue!'];
+            }
+
+        }else{
             return ['Status' => 'Failed', 'Message' => 'Invalid Credentials'];
         }
+       
     }
 
     public function randomly($table, $columns = '*', $conditions = [], $limit = null) {
