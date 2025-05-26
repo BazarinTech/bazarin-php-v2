@@ -1,38 +1,16 @@
+# Bazarin PHP Library - Comprehensive Guide
 
+Bazarin PHP Library is a lightweight and efficient PHP library for database operations, file handling, API interactions, and security functions.
 
----
+## 📌 Installation
+To install the library using **Composer**, run:
 
-# **Bazarin PHP Library**  
-**A lightweight and secure PHP library.**
-
----
-
-## **Features**  
-- Simplifies database operations with a clean API.  
-- Prevents SQL injection using prepared statements.  
-- Supports common CRUD operations: `select`, `insert`, `update`, `delete`.
--  Dates and time management according to regions.
--  Encryption and decryptions.
--  File management and uploads.
--  APIS simplifications.   
-
----
-
-## **Getting Started**  
-
-### **1. Database Connection**  
-Establish a connection using the `Connection` class:  
-```php
-include 'Connection.php';
-
-$connection = new Connection('localhost', 'username', 'password', 'database_name');
-$conn = $connection->connect();
+```sh
+composer require bazarin/bazarin-php-library
 ```
 
----
+After installation, include the **autoload** file in your PHP project:
 
-### **2. Query Builder Initialization**  
-Initialize the `QueryBuilder` with the database connection:  
 ```php
 include 'QueryBuilder.php';
 
